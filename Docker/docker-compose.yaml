@@ -1,17 +1,19 @@
-version: '3.8'
-
 services:
-    db-sql:
-        image: mysql:5.7.11
+    db_sql:
+        image: mysql:8.0
         container_name: db_sql
         restart: always
         environment:
           MYSQL_DATABASE: db_formule1
-          MYSQL_ROOT_PASSWORD: 
+          PMA_HOST: db_sql
+          PMA_USER: root
+          PMA_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: root
         ports:
           - "3306:3306"
         volumes:
           - db_data:/var/lib/mysql
+          # Path on host: ./init.sql, Path in container: /docker-entrypoint-initdb.d/scripts/init.sql
           - ./init.sql:/docker-entrypoint-initdb.d/init.sql
         command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
@@ -27,16 +29,15 @@ services:
           - PMA_ARBITRARY=1
         depends_on:
           - db_sql
-          - db-postgres
 
-    db-postgres:
+    db_postgres:
         image: postgres:18
         container_name: db_postgres
         restart: always
         environment:
           POSTGRES_DB: db_formule1
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 
+          POSTGRES_PASSWORD: postgres
         ports:
           - "5432:5432"
         volumes:
@@ -54,16 +55,16 @@ services:
           # Don't require a "master" password after logging in
           PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
         depends_on:
-          - db-postgres
+          - db_postgres
 
-    python-migrator:
+    python_migrator:
         image: python:3.11
-        build: ./python-migrator
+        build: .
         container_name: python_migrator
         restart: on-failure
         depends_on:
-          - db-sql
-          - db-postgres
+          - db_sql
+          - db_postgres
 
 volumes:
   db_data:
