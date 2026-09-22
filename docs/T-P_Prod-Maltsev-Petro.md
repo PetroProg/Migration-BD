@@ -16,7 +16,8 @@
 | 01.09.2026 | 20 min | Création du repo sur GitHub et premier push | [Github:repo privé](https://github.com/PetroProg) |
 | 08.09.2026 | 45 min | Installation des tous les systemes et services dont Docker a besoin | [Docker images](https://hub.docker.com/) |
 | 08.09.2026 | 90 min | La construction des conteneurs | Conteneurs db_sql et phpmyadmin fonctionnent |
-|  |  |  |  |
+| 22.09.2026 | 45 min | Configuration du conteneur postgresql |  |
+| 22.09.2026 | 90 min | Conteneur pour le script python; Dockerfile, docker-compose.yaml |  |
 
 ---
 

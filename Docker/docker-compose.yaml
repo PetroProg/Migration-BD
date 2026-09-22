@@ -20,7 +20,7 @@ services:
     phpmyadmin:
         image: phpmyadmin:latest
         container_name: phpmyadmin
-        restart: always
+        restart: unless-stopped
         ports:
           - "8080:80" 
         environment:
@@ -33,18 +33,19 @@ services:
     db_postgres:
         image: postgres:18
         container_name: db_postgres
-        restart: always
+        restart: unless-stopped
         environment:
           POSTGRES_DB: db_formule1
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          PGDATA: /var/lib/postgresql/data/pgdata
         ports:
           - "5432:5432"
         volumes:
-          - db_data:/var/lib/postgresql/data
+          - "db-postgres:/var/lib/postgresql/data"
     
     pgadmin:
-        image: dpage/pgadmin4:9.8
+        image: dpage/pgadmin4:9.18
         ports:
           - 5050:80
         environment:
@@ -61,10 +62,13 @@ services:
         image: python:3.11
         build: .
         container_name: python_migrator
-        restart: on-failure
+        restart: no # All scripts will be executed only ones and the container will stop.
         depends_on:
-          - db_sql
-          - db_postgres
+          db_sql:
+            condition: service_healthy
+          db_postgres:
+            condition: service_healthy  
 
 volumes:
   db_data:
+  db-postgres:

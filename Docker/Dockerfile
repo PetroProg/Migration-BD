@@ -2,6 +2,7 @@ FROM php:latest-apache
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 FROM python:3.11
+# Install library C compilers and database client libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
@@ -13,11 +14,11 @@ RUN pip install --no-cache-dir \
     psycopg2-binary \
     pandas
 
-# Copy your application code into the container
-# COPY src/ /app
-    
 # Set the working directory
-# WORKDIR /app
+WORKDIR /script
 
-# Definition du point d'éntrée du conteneur
-# CMD ["python", "app.py"]
+# Copy script code into the container
+COPY . .
+
+# Entrypoint
+CMD ["python", "/script/script.py"]
