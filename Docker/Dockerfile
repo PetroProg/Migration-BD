@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir \
     pandas
 
 # Set the working directory
-WORKDIR /script
+WORKDIR /app
 
 # Copy script code into the container
 COPY . .

@@ -6,9 +6,12 @@ services:
         environment:
           MYSQL_DATABASE: db_formule1
           PMA_HOST: db_sql
-          PMA_USER: root
-          PMA_PASSWORD: root
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        healthcheck:
+          test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${PMA_USER}", "-p${PMA_PASSWORD}"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
         ports:
           - "3306:3306"
         volumes:
@@ -27,6 +30,8 @@ services:
           - PMA_HOST=db_sql
           - PMA_PORT=3306
           - PMA_ARBITRARY=1
+          - PMA_USER=${PMA_USER}
+          - PMA_PASSWORD=${PMA_PASSWORD}
         depends_on:
           - db_sql
 
@@ -36,9 +41,14 @@ services:
         restart: unless-stopped
         environment:
           POSTGRES_DB: db_formule1
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${POSTGRES_USER}
+          POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
           PGDATA: /var/lib/postgresql/data/pgdata
+        healthcheck: 
+          test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d db_formule1"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
         ports:
           - "5432:5432"
         volumes:
@@ -49,8 +59,8 @@ services:
         ports:
           - 5050:80
         environment:
-          PGADMIN_DEFAULT_EMAIL: admin@example.com
-          PGADMIN_DEFAULT_PASSWORD: admin
+          PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+          PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
            # Don't require the user to login
           PGADMIN_CONFIG_SERVER_MODE: 'False'
           # Don't require a "master" password after logging in
@@ -63,6 +73,17 @@ services:
         build: .
         container_name: python_migrator
         restart: no # All scripts will be executed only ones and the container will stop.
+        environment:
+          - MYSQL_HOST=db_sql
+          - MYSQL_PORT=3306
+          - MYSQL_USER=${PMA_USER}
+          - MYSQL_PASSWORD=${PMA_PASSWORD}
+          - MYSQL_DATABASE=db_formule1
+          - POSTGRES_HOST=db_postgres
+          - POSTGRES_PORT=5432
+          - POSTGRES_USER=${POSTGRES_USER}
+          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          - POSTGRES_DB=db_formule1
         depends_on:
           db_sql:
             condition: service_healthy

@@ -18,6 +18,8 @@
 | 08.09.2026 | 90 min | La construction des conteneurs | Conteneurs db_sql et phpmyadmin fonctionnent |
 | 22.09.2026 | 45 min | Configuration du conteneur postgresql |  |
 | 22.09.2026 | 90 min | Conteneur pour le script python; Dockerfile, docker-compose.yaml |  |
+| 29.09.2026 | 45 min | Ajout de .dockerignore; config de .env et dockerfile |  |
+| 29.09.2026 | 90 min |  |  |
 
 ---
 
