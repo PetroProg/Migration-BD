@@ -19,7 +19,7 @@
 | 22.09.2026 | 45 min | Configuration du conteneur postgresql |  |
 | 22.09.2026 | 90 min | Conteneur pour le script python; Dockerfile, docker-compose.yaml |  |
 | 29.09.2026 | 45 min | Ajout de .dockerignore; config de .env et dockerfile |  |
-| 29.09.2026 | 90 min |  |  |
+| 29.09.2026 | 90 min | Développement du script sur Python pour la migration des données. Découvrir la méthode cursor et sa fonctionnement. |  |
 
 ---
 

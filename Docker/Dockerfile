@@ -21,4 +21,4 @@ WORKDIR /app
 COPY . .
 
 # Entrypoint
-CMD ["python", "/script/script.py"]
+CMD ["python", "script/script.py"]
