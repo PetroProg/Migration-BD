@@ -30,26 +30,6 @@ except mysql.connector.Error as e:
 else:
     print("Connected to MySQL database successfully.")
 
-# Fetch tables and columns from MySQL database
-with connection_mysql.cursor() as cursor:
-    cursor.execute("SHOW TABLES;")
-    tables = cursor.fetchall()
-    # Iterate through each table and fetch its columns
-    for table in tables:
-        table_name = table[0]
-        print("Table name:", table_name)
-        cursor.execute(f"DESCRIBE {table_name};")
-        columns = cursor.fetchall()
-        # Iterate through each column and print its name and type
-        for column in columns:
-            column_name = column[0]
-            column_type = column[1]
-            print(f"Column name: {column_name}, Column type: {column_type}")
-            if column_type.startswith("PRIMARY KEY"):
-                print(f"Column {column_name} is a primary key.")
-            elif column_type.startswith("FOREIGN KEY"):
-                print(f"Column {column_name} is a foreign key.")
-
 # Map MySQL data types to PostgreSQL data types
 type_mapping = {
     'int': 'INT',
@@ -60,14 +40,42 @@ type_mapping = {
     'smallint' : 'SMALLINT',
     }
 
-# Generate PostgreSQL column definition based on MySQL column attributes
-pg_type = type_mapping.get(column_type, column_type.upper())
+# Fetch tables and columns from MySQL database
+with connection_mysql.cursor() as mysql_cursor, connection_pg.cursor() as pg_cursor:
+    mysql_cursor.execute("SHOW TABLES;")
+    tables = mysql_cursor.fetchall()
 
-# Generate PostgreSQL column definition based on MySQL column attributes
-if column[3] == 'PRI' and column[5] == 'auto_increment':
-    x = f"{column_name} SERIAL PRIMARY KEY"
-elif column[3] == 'PRI':
-    x = f"{column_name} {pg_type} PRIMARY KEY"
-else:
-    x = f"{column_name} {pg_type}"
+    # Iterate through each table and fetch its columns
+    for table in tables:
+        table_name = table[0]
+        print(f"Creating table: {table_name}...")
 
+        mysql_cursor.execute(f"DESCRIBE {table_name};")
+        columns = mysql_cursor.fetchall()
+
+        # Iterate through each column and print its name and type
+        columns_sql = []
+        for column in columns:
+            column_name = column[0]
+            column_type = column[1]
+
+            pg_type = type_mapping.get(column_type, column_type.upper())
+
+            # Handle primary key and auto-increment columns
+            if column[3] == 'PRI' and column[5] == 'auto_increment':
+                col_def = f"{column_name} SERIAL PRIMARY KEY"
+            elif column[3] == 'PRI':
+                col_def = f"{column_name} {pg_type} PRIMARY KEY"
+            else:
+                col_def = f"{column_name} {pg_type}"
+
+            columns_sql.append(col_def)
+
+columns_definition = ", ".join(columns_sql)
+create_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_definition});"
+    
+pg_cursor.execute(create_query)
+
+# Commit the changes to the PostgreSQL database
+connection_pg.commit()
+print("All tables successfully created in PostgreSQL database.")
