@@ -23,5 +23,6 @@
 | 06.10.2026 | 45 min | La méthode de cursor; Le traitement des types des tables et des colonnes. |  |
 | 06.10.2026 | 90 min | Obtenir les colonnes et leurs types via le script. Aussi création des conditions pour les types différents et la librarie. |  |
 | 26.10.2026 | 90 min | La composition de la requête pour créer les tables dans PostgreSQL.  |  |
+| 27.10.2026 | 135 min | Toutes les données insérées dans PostgreSQL. |  |
 
-**Temps total cumulé :** 765 min (12 h 45 min)
+**Temps total cumulé :** 900 min (15 h)
