@@ -55,6 +55,7 @@ with connection_mysql.cursor() as mysql_cursor, connection_pg.cursor() as pg_cur
 
         # Iterate through each column and print its name and type
         columns_sql = []
+        pk_columns = []
         for column in columns:
             column_name = column[0]
             column_type = column[1]
@@ -63,18 +64,23 @@ with connection_mysql.cursor() as mysql_cursor, connection_pg.cursor() as pg_cur
 
             # Handle primary key and auto-increment columns
             if column[3] == 'PRI' and column[5] == 'auto_increment':
-                col_def = f"{column_name} SERIAL PRIMARY KEY"
-            elif column[3] == 'PRI':
-                col_def = f"{column_name} {pg_type} PRIMARY KEY"
+                col_def = f"{column_name} SERIAL"
             else:
                 col_def = f"{column_name} {pg_type}"
 
+            if column[3] == 'PRI':
+                pk_columns.append(column_name)
+
             columns_sql.append(col_def)
 
-columns_definition = ", ".join(columns_sql)
-create_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_definition});"
-    
-pg_cursor.execute(create_query)
+        if pk_columns:
+            pk_columns_str = ", ".join(pk_columns)
+            columns_sql.append(f"PRIMARY KEY ({pk_columns_str})")
+
+        columns_definition = ", ".join(columns_sql)
+        create_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_definition});"
+
+        pg_cursor.execute(create_query)
 
 # Commit the changes to the PostgreSQL database
 connection_pg.commit()
