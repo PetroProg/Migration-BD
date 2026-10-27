@@ -53,9 +53,11 @@ with connection_mysql.cursor() as mysql_cursor, connection_pg.cursor() as pg_cur
         mysql_cursor.execute(f"DESCRIBE {table_name};")
         columns = mysql_cursor.fetchall()
 
-        # Iterate through each column and print its name and type
         columns_sql = []
         pk_columns = []
+        column_names = []
+
+        # Iterate through each column and print its name and type
         for column in columns:
             column_name = column[0]
             column_type = column[1]
@@ -70,7 +72,8 @@ with connection_mysql.cursor() as mysql_cursor, connection_pg.cursor() as pg_cur
 
             if column[3] == 'PRI':
                 pk_columns.append(column_name)
-
+    
+            column_names.append(column_name)
             columns_sql.append(col_def)
 
         if pk_columns:
@@ -81,6 +84,19 @@ with connection_mysql.cursor() as mysql_cursor, connection_pg.cursor() as pg_cur
         create_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_definition});"
 
         pg_cursor.execute(create_query)
+
+        mysql_cursor.execute(f"SELECT * FROM {table_name};")
+        rows = mysql_cursor.fetchall()
+
+        if rows:
+            columns_str = ", ".join(column_names)
+            # Create a string of placeholders for the values in the INSERT statement
+            placeholders = ", ".join(["%s"] * len(column_names))
+            
+            insert_query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders});"
+            # Execute the INSERT statement with the fetched rows
+            pg_cursor.executemany(insert_query, rows)
+            print(f"Inserted {len(rows)} rows into table: {table_name}.")
 
 # Commit the changes to the PostgreSQL database
 connection_pg.commit()
